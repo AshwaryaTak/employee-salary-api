@@ -100,3 +100,15 @@ def test_delete_employee():
     response = client.get(f"/employees/{emp_id}")
 
     assert response.status_code == 404
+
+def test_get_employee_not_found():
+
+    response = client.get("/employees/999")
+
+    assert response.status_code == 404
+
+def test_delete_employee_not_found():
+
+    response = client.delete("/employees/999")
+
+    assert response.status_code == 404
