@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .. import crud, schemas
 from ..database import get_db
+from ..models import Employee
 from ..services.salary_service import calculate_salary
 
 router = APIRouter(
@@ -76,3 +77,21 @@ def salary_calculation(emp_id: int, db: Session = Depends(get_db)):
         return {"error": "Employee not found"}
 
     return calculate_salary(employee.country, employee.salary)
+
+@router.get("/metrics/salary/country/{country}")
+def salary_by_country(country: str, db: Session = Depends(get_db)):
+
+    employees = db.query(Employee).filter(Employee.country == country).all()
+
+    salaries = [e.salary for e in employees]
+
+    if not salaries:
+        return {"message": "No employees found"}
+
+    return {
+        "min_salary": min(salaries),
+        "max_salary": max(salaries),
+        "avg_salary": sum(salaries) / len(salaries)
+    }
+
+
